@@ -4,7 +4,7 @@
 \alias{pbs}
 \title{Profile Based Standardization (PBS)}
 \usage{
-pbs(table, clus = 1)
+pbs(table, clus = NULL)
 }
 \arguments{
 \item{table}{A dataframe with 4 columns (columns need to be in the right order)\cr
@@ -13,7 +13,7 @@ column 2: The concept id\cr
 column 3: A term identifier\cr
 column 4: The term frequency}
 
-\item{cl}{Number of cores to be used}
+\item{clus}{Number of cores to be used}
 }
 \value{
 A dataframe with showing the PBS for each unique firm-pair for each concept
@@ -31,4 +31,6 @@ term   = c("a", "b", "c", "d", "e", "a", "b", "f", "g", "a", "f", "e", "g"),
 freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 
 pbs(table)
+clus <- parallel::makeCluster(getOption("cl.cores", 3))
+pbs(table, clus = clus)
 }

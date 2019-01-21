@@ -8,7 +8,7 @@
 #' column 3: A term identifier\cr
 #' column 4: The term frequency
 #' 
-#' @param cl
+#' @param clus
 #' Number of cores to be used
 #' 
 #' @return
@@ -25,7 +25,9 @@
 #' freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 #' 
 #' pbs(table)
-pbs <- function(table, clus = 1) {
+#' clus <- parallel::makeCluster(getOption("cl.cores", 3))
+#' pbs(table, clus = clus)
+pbs <- function(table, clus = NULL) {
   
   `%>%` <- magrittr::`%>%`
   colnames(table) <- c("doc_id", "con_id", "term", "freq")
@@ -48,25 +50,36 @@ pbs <- function(table, clus = 1) {
   names(con.list) <- sort(unique(table$con_id))
 
 
-  clus <- parallel::makeCluster(mc <- getOption("cl.cores", clus))
-  parallel::clusterExport(clus, c("con.list", "%>%"), envir = environment())
-
-
-
-  pbs <- parallel::parLapply(1:length(con.list), function(a) {
-    man <- lapply(1:nrow(con.list[[a]]), function(x) {
-      as.matrix(dist(t(as.matrix(con.list[[a]][x, -(1:2)])), method = "manhattan"))
-    })
-    man <- 1 - purrr::reduce(man, `+`) / 2
-    man[lower.tri(man, TRUE)] <- NA
-    man <- reshape2::melt(man) %>% 
-      dplyr::filter(!is.na(value)) %>%
-      dplyr::mutate(con_id = as.integer(names(con.list)[a]))
-    return(man)
-  }, cl = clus) %>% dplyr::bind_rows() %>%
-    dplyr::select(con_id, doc1 = Var1, doc2 = Var2, pbs = value)
-  
-  parallel::stopCluster(clus)
-  
+  if (!is.null(clus)) {
+    parallel::clusterExport(clus, c("con.list", "%>%"), envir = environment())
+    
+    pbs <- parallel::parLapply(1:length(con.list), function(a) {
+      man <- lapply(1:nrow(con.list[[a]]), function(x) {
+        as.matrix(dist(t(as.matrix(con.list[[a]][x, -(1:2)])), method = "manhattan"))
+      })
+      man <- 1 - purrr::reduce(man, `+`) / 2
+      man[lower.tri(man, TRUE)] <- NA
+      man <- reshape2::melt(man) %>% 
+        dplyr::filter(!is.na(value)) %>%
+        dplyr::mutate(con_id = as.integer(names(con.list)[a]))
+      return(man)
+    }, cl = clus) %>% dplyr::bind_rows() %>%
+      dplyr::select(con_id, doc1 = Var1, doc2 = Var2, pbs = value)
+    
+    parallel::stopCluster(clus)
+  } else {
+    pbs <- lapply(1:length(con.list), function(a) {
+      man <- lapply(1:nrow(con.list[[a]]), function(x) {
+        as.matrix(dist(t(as.matrix(con.list[[a]][x, -(1:2)])), method = "manhattan"))
+      })
+      man <- 1 - purrr::reduce(man, `+`) / 2
+      man[lower.tri(man, TRUE)] <- NA
+      man <- reshape2::melt(man) %>% 
+        dplyr::filter(!is.na(value)) %>%
+        dplyr::mutate(con_id = as.integer(names(con.list)[a]))
+      return(man)
+    }) %>% dplyr::bind_rows() %>%
+      dplyr::select(con_id, doc1 = Var1, doc2 = Var2, pbs = value)
+  }
   return(pbs)
 }
