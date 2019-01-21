@@ -8,6 +8,9 @@
 #' column 3: A term identifier\cr
 #' column 4: The term frequency
 #' 
+#' @param cl
+#' Number of cores to be used
+#' 
 #' @return
 #' A dataframe with showing the PBS for each unique firm-pair for each concept
 #' @export
@@ -22,7 +25,7 @@
 #' freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 #' 
 #' pbs(table)
-pbs <- function(table) {
+pbs <- function(table, cl = 1) {
   
   `%>%` <- magrittr::`%>%`
   colnames(table) <- c("doc_id", "con_id", "term", "freq")
@@ -43,8 +46,11 @@ pbs <- function(table) {
   
   con.list <- split(table, dplyr::group_indices(table, con_id))
   names(con.list) <- sort(unique(table$con_id))
-  
-  pbs <- lapply(1:length(con.list), function(a) {
+
+    cl <- parallel::makeCluster(cl)
+    parallel::clusterExport(cl, c("con.list", "%>%"))
+
+  pbs <- parallel::parLapply(1:length(con.list), function(a) {
     man <- lapply(1:nrow(con.list[[a]]), function(x) {
       as.matrix(dist(t(as.matrix(con.list[[a]][x, -(1:2)])), method = "manhattan"))
     })
@@ -54,14 +60,10 @@ pbs <- function(table) {
       dplyr::filter(!is.na(value)) %>%
       dplyr::mutate(con_id = as.integer(names(con.list)[a]))
     return(man)
-  }) %>% dplyr::bind_rows() %>%
+  }, cl = cl) %>% dplyr::bind_rows() %>%
     dplyr::select(con_id, doc1 = Var1, doc2 = Var2, pbs = value)
+  
+  parallel::stopCluster(cl)
   
   return(pbs)
 }
-
-
-
-
-
-

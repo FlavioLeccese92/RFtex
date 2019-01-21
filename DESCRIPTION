@@ -11,3 +11,10 @@ License: What license it uses
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Imports: 
+    parallel,
+    dplyr,
+    reshape2,
+    purrr,
+    tidyr,
+    magrittr

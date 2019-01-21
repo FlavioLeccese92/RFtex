@@ -4,7 +4,7 @@
 \alias{pbs}
 \title{Profile Based Standardization (PBS)}
 \usage{
-pbs(table)
+pbs(table, cl = 1)
 }
 \arguments{
 \item{table}{A dataframe with 4 columns (columns need to be in the right order)\cr
@@ -12,6 +12,8 @@ column 1: A document identifier\cr
 column 2: The concept id\cr
 column 3: A term identifier\cr
 column 4: The term frequency}
+
+\item{cl}{Number of cores to be used}
 }
 \value{
 A dataframe with showing the PBS for each unique firm-pair for each concept
