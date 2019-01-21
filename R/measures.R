@@ -25,7 +25,7 @@
 #' freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 #' 
 #' pbs(table)
-pbs <- function(table, cl = 1) {
+pbs <- function(table, clus = 1) {
   
   `%>%` <- magrittr::`%>%`
   colnames(table) <- c("doc_id", "con_id", "term", "freq")
@@ -47,8 +47,11 @@ pbs <- function(table, cl = 1) {
   con.list <- split(table, dplyr::group_indices(table, con_id))
   names(con.list) <- sort(unique(table$con_id))
 
-    cl <- parallel::makeCluster(cl)
-    parallel::clusterExport(cl, c("con.list", "%>%"))
+
+  clus <- parallel::makeCluster(mc <- getOption("cl.cores", clus))
+  parallel::clusterExport(clus, c("con.list", "%>%"), envir = environment())
+
+
 
   pbs <- parallel::parLapply(1:length(con.list), function(a) {
     man <- lapply(1:nrow(con.list[[a]]), function(x) {
@@ -60,10 +63,10 @@ pbs <- function(table, cl = 1) {
       dplyr::filter(!is.na(value)) %>%
       dplyr::mutate(con_id = as.integer(names(con.list)[a]))
     return(man)
-  }, cl = cl) %>% dplyr::bind_rows() %>%
+  }, cl = clus) %>% dplyr::bind_rows() %>%
     dplyr::select(con_id, doc1 = Var1, doc2 = Var2, pbs = value)
   
-  parallel::stopCluster(cl)
+  parallel::stopCluster(clus)
   
   return(pbs)
 }

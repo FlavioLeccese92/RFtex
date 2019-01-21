@@ -4,7 +4,7 @@
 \alias{pbs}
 \title{Profile Based Standardization (PBS)}
 \usage{
-pbs(table, cl = 1)
+pbs(table, clus = 1)
 }
 \arguments{
 \item{table}{A dataframe with 4 columns (columns need to be in the right order)\cr
