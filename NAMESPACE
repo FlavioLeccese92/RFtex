@@ -2,3 +2,5 @@
 
 export(cbs_mult)
 export(cbs_sing)
+export(id_chunk)
+export(id_split)
