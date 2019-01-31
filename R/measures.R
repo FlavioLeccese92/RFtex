@@ -121,7 +121,7 @@ cbs_sing <- function(table, out = c("table", "matrix")) {
   out <- out[1]
   
   
-  con.freq <- table %>% dplyr::select(-concept_id, -term) %>%
+  con.freq <- table %>% dplyr::select(-con_id, -term) %>%
     mutate(doc_id = as.integer(doc_id))
   
   
