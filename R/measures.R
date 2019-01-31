@@ -120,6 +120,11 @@ cbs_sing <- function(table, out = c("table", "matrix")) {
   if (length(unique(table$con_id)) > 1) stop("enter only one concept id")
   out <- out[1]
   
+  
+  con.freq <- table %>% dplyr::select(-concept_id, -term) %>%
+    mutate(doc_id = as.integer(doc_id))
+  
+  
   miss <- table %>% dplyr::distinct(con_id, term) %>%
     tidyr::crossing(doc_id = table$doc_id) %>%
     dplyr::anti_join(table, by = c("con_id", "term", "doc_id")) %>%
@@ -142,9 +147,13 @@ cbs_sing <- function(table, out = c("table", "matrix")) {
   if (out == "table") {
     cbs[lower.tri(cbs, TRUE)] <- NA
     cbs <- reshape2::melt(cbs) %>% dplyr::filter(!is.na(value)) %>%
-      dplyr::select(doc1 = Var1, doc2 = Var2, cbs = value)
+      dplyr::select(doc1 = Var1, doc2 = Var2, cbs = value) %>%
+      dplyr::left_join(con.freq, by = c("doc1" = "doc_id")) %>%
+      dplyr::left_join(con.freq, by = c("doc2" = "doc_id")) %>%
+      dplyr::mutate(freq = freq_adj.x + freq_adj.y) %>%
+      dplyr::select(-freq_adj.x, -freq_adj.y)
   }
-
+  
   return(cbs)
 }
 
