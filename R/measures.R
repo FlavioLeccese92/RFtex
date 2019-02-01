@@ -151,7 +151,8 @@ cbs_sing <- function(table, out = c("table", "matrix")) {
       dplyr::left_join(con.freq, by = c("doc1" = "doc_id")) %>%
       dplyr::left_join(con.freq, by = c("doc2" = "doc_id")) %>%
       dplyr::mutate(freq = freq.x + freq.y) %>%
-      dplyr::select(-freq.x, -freq.y)
+      dplyr::select(-freq.x, -freq.y) %>%
+      dplyr::mutate(freq = as.integer(freq))
   }
   
   return(cbs)
