@@ -106,17 +106,12 @@ cbs_mult <- function(table, clus = NULL) {
 #' doc_id = c(1,1,1,1,1,2,2,2,2,3,3,3,3),
 #' con_id = c(1,1,2,2,2,1,1,3,3,1,3,2,3),
 #' term   = c("a", "b", "c", "d", "e", "a", "b", "f", "g", "a", "f", "e", "g"),
-#' freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12)) %>%
-#' dplyr::group_by(doc_id, con_id, term) %>%
-#' dplyr::summarize(freq = sum(freq)) %>%
-#' dplyr::ungroup()
+#' freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 #' 
 #' con.list <- split(table, dplyr::group_indices(table, con_id))
 #' names(con.list) <- sort(unique(table$con_id))
 #' 
-#' con <- con.list[[1]]
-#' 
-#' cbs_sing(con)
+#' cbs_sing( con.list[[1]])
 #' lapply(con.list, cbs_sing)
 cbs_sing <- function(table) {
 

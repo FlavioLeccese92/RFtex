@@ -4,7 +4,7 @@
 \alias{cbs_sing}
 \title{Concept Based Standardization (cbs)}
 \usage{
-cbs_sing(table, out = c("table", "matrix"))
+cbs_sing(table)
 }
 \arguments{
 \item{table}{A dataframe with 4 columns (columns need to be in the right order)\cr
@@ -22,6 +22,7 @@ Concept Based Standardization (cbs)
 \examples{
 library (RFtex)
 
+`\%>\%` <- magrittr::`\%>\%`
 table <- tibble::tibble(
 doc_id = c(1,1,1,1,1,2,2,2,2,3,3,3,3),
 con_id = c(1,1,2,2,2,1,1,3,3,1,3,2,3),
@@ -31,6 +32,6 @@ freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 con.list <- split(table, dplyr::group_indices(table, con_id))
 names(con.list) <- sort(unique(table$con_id))
 
-cbs_sing(con.list[[1]])
+cbs_sing( con.list[[1]])
 lapply(con.list, cbs_sing)
 }
