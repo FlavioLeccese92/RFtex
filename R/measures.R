@@ -119,37 +119,42 @@ cbs_sing <- function(table) {
   
   if (length(unique(table$con_id)) > 1) stop("enter only one concept id")
 
-  con.freq <- table %>% dplyr::select(-con_id, -term) %>%
-    dplyr::mutate(doc_id = as.integer(doc_id)) %>%
-    dplyr::group_by(doc_id) %>%
-    dplyr::summarise(freq = sum(freq))
-  
-  miss <- table %>% dplyr::distinct(con_id, term) %>%
-    tidyr::crossing(doc_id = table$doc_id) %>%
-    dplyr::anti_join(table, by = c("con_id", "term", "doc_id")) %>%
-    dplyr::mutate(freq = 0)
-  
-  table <- dplyr::bind_rows(table, miss) %>%
-    dplyr::group_by(doc_id, con_id) %>%
-    dplyr::mutate(rel = freq / sum(freq)) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-freq) %>%
-    dplyr::filter(!is.nan(rel)) %>%
-    tidyr::spread(doc_id, rel) %>%
-    dplyr::arrange(con_id)
-  
-  rm(miss);gc()
-  
-  cbs <- lapply(1:nrow(table), function(x) {
-    dist(t(as.matrix(table[x, -(1:2)])), method = "manhattan")
-  })
-  cbs <- 1 - purrr::reduce(cbs, `+`) / 2
-  cbs <- broom::tidy(cbs) %>%
-    dplyr::select(doc1 = item2, doc2 = item1, cbs = distance) 
-  
-  cbs$freq <- 
-    con.freq$freq[vapply(cbs$doc1, function(x) which(con.freq$doc_id %in% x), integer(1))] +
-    con.freq$freq[vapply(cbs$doc2, function(x) which(con.freq$doc_id %in% x), integer(1))]
-  
-  return(cbs)
+  if (length(unique(table$doc_id)) > 1) {
+    
+    con.freq <- table %>% dplyr::select(-con_id, -term) %>%
+      dplyr::mutate(doc_id = as.integer(doc_id)) %>%
+      dplyr::group_by(doc_id) %>%
+      dplyr::summarise(freq = sum(freq))
+    
+    miss <- table %>% dplyr::distinct(con_id, term) %>%
+      tidyr::crossing(doc_id = table$doc_id) %>%
+      dplyr::anti_join(table, by = c("con_id", "term", "doc_id")) %>%
+      dplyr::mutate(freq = 0)
+    
+    table <- dplyr::bind_rows(table, miss) %>%
+      dplyr::group_by(doc_id, con_id) %>%
+      dplyr::mutate(rel = freq / sum(freq)) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-freq) %>%
+      dplyr::filter(!is.nan(rel)) %>%
+      tidyr::spread(doc_id, rel) %>%
+      dplyr::arrange(con_id)
+    
+    rm(miss);gc()
+    
+    cbs <- lapply(1:nrow(table), function(x) {
+      dist(t(as.matrix(table[x, -(1:2)])), method = "manhattan")
+    })
+    cbs <- 1 - purrr::reduce(cbs, `+`) / 2
+    cbs <- broom::tidy(cbs) %>%
+      dplyr::select(doc1 = item2, doc2 = item1, cbs = distance) 
+    
+    cbs$freq <- 
+      con.freq$freq[vapply(cbs$doc1, function(x) which(con.freq$doc_id %in% x), integer(1))] +
+      con.freq$freq[vapply(cbs$doc2, function(x) which(con.freq$doc_id %in% x), integer(1))]
+    
+    return(cbs)
+  } else {
+    return(NULL)
+  }
 }
