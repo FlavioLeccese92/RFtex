@@ -101,7 +101,6 @@ cbs_mult <- function(table, clus = NULL) {
 #' @examples
 #' library (RFtex)
 #' 
-#' `%>%` <- magrittr::`%>%`
 #' table <- tibble::tibble(
 #' doc_id = c(1,1,1,1,1,2,2,2,2,3,3,3,3),
 #' con_id = c(1,1,2,2,2,1,1,3,3,1,3,2,3),
@@ -154,4 +153,3 @@ cbs_sing <- function(table) {
   
   return(cbs)
 }
-pryr::object_size(numeric())

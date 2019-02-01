@@ -22,7 +22,6 @@ Concept Based Standardization (cbs)
 \examples{
 library (RFtex)
 
-`\%>\%` <- magrittr::`\%>\%`
 table <- tibble::tibble(
 doc_id = c(1,1,1,1,1,2,2,2,2,3,3,3,3),
 con_id = c(1,1,2,2,2,1,1,3,3,1,3,2,3),
