@@ -110,7 +110,7 @@ cbs_mult <- function(table, clus = NULL) {
 #' con.list <- split(table, dplyr::group_indices(table, con_id))
 #' names(con.list) <- sort(unique(table$con_id))
 #' 
-#' cbs_sing( con.list[[1]])
+#' cbs_sing(con.list[[1]])
 #' lapply(con.list, cbs_sing)
 cbs_sing <- function(table) {
 
@@ -147,12 +147,12 @@ cbs_sing <- function(table) {
     })
     cbs <- 1 - purrr::reduce(cbs, `+`) / 2
     cbs <- broom::tidy(cbs) %>%
-      dplyr::select(doc1 = item2, doc2 = item1, cbs = distance) 
-    
-    cbs$freq <- 
-      con.freq$freq[vapply(cbs$doc1, function(x) which(con.freq$doc_id %in% x), integer(1))] +
-      con.freq$freq[vapply(cbs$doc2, function(x) which(con.freq$doc_id %in% x), integer(1))]
-    
+      dplyr::select(doc1 = item2, doc2 = item1, cbs = distance) %>%
+      dplyr::left_join(con.freq, by = c("doc1" = "doc_id")) %>%
+      dplyr::left_join(con.freq, by = c("doc2" = "doc_id")) %>%
+      dplyr::mutate(freq = as.integer(freq.x + freq.y)) %>%
+      dplyr::select(-freq.x, -freq.y)
+  
     return(cbs)
   } else {
     return(NULL)

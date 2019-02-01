@@ -31,6 +31,6 @@ freq   = c(21,12,58,32,14,21,14,66,14,12,85,100,12))
 con.list <- split(table, dplyr::group_indices(table, con_id))
 names(con.list) <- sort(unique(table$con_id))
 
-cbs_sing( con.list[[1]])
+cbs_sing(con.list[[1]])
 lapply(con.list, cbs_sing)
 }
