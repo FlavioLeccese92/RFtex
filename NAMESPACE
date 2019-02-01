@@ -2,5 +2,6 @@
 
 export(cbs_mult)
 export(cbs_sing)
+export(dir_create)
 export(id_chunk)
 export(id_split)
