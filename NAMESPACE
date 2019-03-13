@@ -2,6 +2,11 @@
 
 export(cbs_mult)
 export(cbs_sing)
+export(cop_stand_le)
+export(copm_match)
+export(copm_prep_db)
+export(copm_prep_names)
 export(dir_create)
 export(id_chunk)
 export(id_split)
+export(pdf_to_txt)
